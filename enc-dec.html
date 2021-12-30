@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+  
+<head>
+    <title>Encrypt/Decrypt file</title>
+</head>
+  
+<body>
+    <select name="opertionType" id="opertionType">
+        <option value="encrypt">Encrypt</option>
+        <option value="decrypt">Decrypt</option>
+    </select>
+    <br>
+    <br>
+    <form>
+        Input File: <input id="inputFile" type="file">
+    </form>
+    <br>
+    <form>
+        Password: <input id="password" type="password">
+    </form>
+    <br>
+    <form>
+        Confirm Password: <input id="confirmPassword" type="password">
+    </form>
+    <br>
+    <button type="startButton" onclick="start(this)">Start</button>
+    <br>
+    <br>
+    <pre id="output"></pre>
+
+    <script type="text/javascript">
+
+        async function start(self) {
+            inputFile = document.getElementById('inputFile').value
+            if(inputFile == null || inputFile === '') {
+                alert('Input file not selected.')
+                return
+            }
+
+            password = document.getElementById('password').value
+            if(password == null || password === '') {
+                alert('Please provide password')
+                return
+            }
+            confirmPassword = document.getElementById('confirmPassword').value
+            if(confirmPassword == null || confirmPassword === '') {
+                alert('Please provide confirm password')
+                return
+            }
+
+            if(password !== confirmPassword) {
+                alert('Password is not same as confirm password')
+                return
+            }
+
+            document.getElementById('password').value = document.getElementById('confirmPassword').value = ''
+
+            type = document.getElementById('opertionType').value
+
+            if(type === 'encrypt') {
+                await encryptOperation(password)
+            } else {
+                await decryptOperation(password)
+            }
+        }
+
+        async function getSaveFileHandler(fileName) {
+            const opts = {
+                suggestedName: fileName
+            };
+            fileHandler = await window.showSaveFilePicker(opts);
+            return fileHandler
+        }
+
+        async function encryptOperation(password) {
+            inputFileBlob = document.getElementById('inputFile').files[0]
+            var salt = crypto.getRandomValues(new Uint8Array(16))
+            //reader = inputFileBlob.stream().getReader()
+            var fileReader = new FileReader();
+            fileReader.onload = async function() {
+                encFileArrayBuffer = await encryptFile(fileReader.result, salt, password);
+                outputFileHandler = await getSaveFileHandler(inputFileBlob.name + '.enc')
+                writableOutputFileHandler = await outputFileHandler.createWritable()
+                writableOutputFileHandler.write(salt)
+                writableOutputFileHandler.write(encFileArrayBuffer)
+                writableOutputFileHandler.close()
+            }
+            fileReader.readAsArrayBuffer(inputFileBlob)
+        }
+
+        async function decryptOperation(password) {
+            inputFileBlob = document.getElementById('inputFile').files[0]
+            var fileReader = new FileReader();
+            fileReader.onload = async function() {
+                encData = new Uint8Array(fileReader.result)
+                salt = encData.slice(0, 16)
+                encData = encData.slice(16)
+                fileArrayBuffer = await decryptFile(encData, salt, password);
+                outputFileName = inputFileBlob.name
+                if(inputFileBlob.name.toLowerCase().endsWith('.enc')) {
+                    outputFileName = inputFileBlob.name.substring(0, inputFileBlob.name.length - 4)
+                }
+                outputFileHandler = await getSaveFileHandler(outputFileName)
+                writableOutputFileHandler = await outputFileHandler.createWritable()
+                writableOutputFileHandler.write(fileArrayBuffer)
+                writableOutputFileHandler.close()
+            }
+            fileReader.readAsArrayBuffer(inputFileBlob)
+        }        
+
+        function u8ToBase64(u8) {
+            return btoa(String.fromCharCode.apply(null, u8));
+        }
+
+        function base64ToU8(str) {
+            return Uint8Array.from(Array.from(atob(str)));
+        }
+
+        function strToU8(str) {
+            return new TextEncoder().encode(str)
+        }
+
+        function u8ToStr(u8) {
+            return new TextDecoder().decode(u8)
+        }
+
+        async function encryptFile(arrayBuffer, salt, password) {
+            password = strToU8(password)
+            digest = await crypto.subtle.digest({name: 'SHA-512'}, password)
+            baseKey = await crypto.subtle.importKey('raw', digest, {name: 'PBKDF2'}, false, ['deriveKey'])
+            key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-512', salt: salt, iterations: 100000}, baseKey, {name: 'AES-CBC', length: 256}, false, ['encrypt', 'decrypt'])
+            encArrayBuffer = await crypto.subtle.encrypt({name: 'AES-CBC', iv: salt}, key, arrayBuffer)
+            return encArrayBuffer
+        }
+
+        async function decryptFile(encArrayBuffer, salt, password) {
+            password = strToU8(password)
+            digest = await crypto.subtle.digest({name: 'SHA-512'}, password)
+            baseKey = await crypto.subtle.importKey('raw', digest, {name: 'PBKDF2'}, false, ['deriveKey'])
+            key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-512', salt: salt, iterations: 100000}, baseKey, {name: 'AES-CBC', length: 256}, false, ['encrypt', 'decrypt'])
+            arrayBuffer = await crypto.subtle.decrypt({name: 'AES-CBC', iv: salt}, key, encArrayBuffer)
+            return arrayBuffer
+        }
+    </script>
+</body>
+  
+</html>
