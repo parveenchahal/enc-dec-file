@@ -34,18 +34,7 @@
     </div>
 
     <script type="text/javascript">
-
-        function toggleConfirmPassword() {
-            dropdown = document.getElementById('opertionType')
-            type = dropdown.value
-            document.getElementById('startButton').innerText = dropdown.selectedOptions[0].innerText
-            if(type === 'encrypt') {
-                document.getElementById('confirmPasswordForm').hidden = false
-            } else {
-                document.getElementById('confirmPasswordForm').hidden = true
-            }
-        }
-
+        
         async function start(self) {
             type = document.getElementById('opertionType').value
 
@@ -83,31 +72,9 @@
             }
         }
 
-        function saveFile(fileName, data) {
-            if(!Array.isArray(data)) {
-                data = [data]
-            }
-            var a = document.getElementById('triggerDownload')
-            var blob = new Blob(data);
-            blob.stream()
-            var objectUrl = URL.createObjectURL(blob);
-            a.href = objectUrl
-            a.download = fileName
-            a.click()
-        }
-
-        async function getSaveFileHandler(fileName) {
-            const opts = {
-                suggestedName: fileName
-            };
-            fileHandler = await window.showSaveFilePicker(opts);
-            return fileHandler
-        }
-
         async function encryptOperation(password) {
             inputFileBlob = document.getElementById('inputFile').files[0]
             var salt = crypto.getRandomValues(new Uint8Array(16))
-            //reader = inputFileBlob.stream().getReader()
             var fileReader = new FileReader();
             fileReader.onload = async function() {
                 try {
@@ -143,14 +110,6 @@
                 saveFile(outputFileName, fileArrayBuffer)
             }
             fileReader.readAsArrayBuffer(inputFileBlob)
-        }        
-
-        function strToU8(str) {
-            return new TextEncoder().encode(str)
-        }
-
-        function u8ToStr(u8) {
-            return new TextDecoder().decode(u8)
         }
 
         async function encryptFile(arrayBuffer, salt, password) {
@@ -169,6 +128,46 @@
             key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-512', salt: salt, iterations: 100000}, baseKey, {name: 'AES-CBC', length: 256}, false, ['encrypt', 'decrypt'])
             arrayBuffer = await crypto.subtle.decrypt({name: 'AES-CBC', iv: salt}, key, encArrayBuffer)
             return arrayBuffer
+        }
+      
+        function saveFile(fileName, data) {
+            if(!Array.isArray(data)) {
+                data = [data]
+            }
+            var a = document.getElementById('triggerDownload')
+            var blob = new Blob(data);
+            blob.stream()
+            var objectUrl = URL.createObjectURL(blob);
+            a.href = objectUrl
+            a.download = fileName
+            a.click()
+        }
+
+        async function getSaveFileHandler(fileName) {
+            const opts = {
+                suggestedName: fileName
+            };
+            fileHandler = await window.showSaveFilePicker(opts);
+            return fileHandler
+        }
+      
+        function strToU8(str) {
+            return new TextEncoder().encode(str)
+        }
+
+        function u8ToStr(u8) {
+            return new TextDecoder().decode(u8)
+        }
+      
+        function toggleConfirmPassword() {
+            dropdown = document.getElementById('opertionType')
+            type = dropdown.value
+            document.getElementById('startButton').innerText = dropdown.selectedOptions[0].innerText
+            if(type === 'encrypt') {
+                document.getElementById('confirmPasswordForm').hidden = false
+            } else {
+                document.getElementById('confirmPasswordForm').hidden = true
+            }
         }
     </script>
 </body>
