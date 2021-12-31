@@ -1,1 +1,1 @@
-[enc.parveenchahal.com](https://enc.parveenchahal.com/)
+[pcurl.net/enc](http://pcurl.net/enc)
