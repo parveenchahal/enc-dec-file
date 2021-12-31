@@ -1,1 +1,1 @@
-[enc.parveenchahal.com](https://parveenchahal.github.io/encrypt-file/)
+[enc.parveenchahal.com](https://enc.parveenchahal.com/)
