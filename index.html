@@ -91,7 +91,13 @@
             //reader = inputFileBlob.stream().getReader()
             var fileReader = new FileReader();
             fileReader.onload = async function() {
-                encFileArrayBuffer = await encryptFile(fileReader.result, salt, password);
+                try {
+                    encFileArrayBuffer = await encryptFile(fileReader.result, salt, password);
+                } catch(ex) {
+                    console.error(ex, ex.stack);
+                    alert("Something went wrong while encrypting.")
+                    return
+                }
                 outputFileHandler = await getSaveFileHandler(inputFileBlob.name + '.enc')
                 writableOutputFileHandler = await outputFileHandler.createWritable()
                 writableOutputFileHandler.write(salt)
@@ -108,7 +114,13 @@
                 encData = new Uint8Array(fileReader.result)
                 salt = encData.slice(0, 16)
                 encData = encData.slice(16)
-                fileArrayBuffer = await decryptFile(encData, salt, password);
+                try {
+                    fileArrayBuffer = await decryptFile(encData, salt, password);
+                } catch(ex) {
+                    console.error(ex, ex.stack);
+                    alert("Something went wrong while decrypting.")
+                    return
+                }
                 outputFileName = inputFileBlob.name
                 if(inputFileBlob.name.toLowerCase().endsWith('.enc')) {
                     outputFileName = inputFileBlob.name.substring(0, inputFileBlob.name.length - 4)
