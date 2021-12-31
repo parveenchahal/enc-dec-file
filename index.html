@@ -7,26 +7,30 @@
 </head>
   
 <body>
-    <h1>Ecrypt/Decrypt file</h1>
-    <select name="opertionType" id="opertionType" onchange="toggleConfirmPassword()">
-        <option value="encrypt">Encrypt</option>
-        <option value="decrypt">Decrypt</option>
-    </select>
-    <br>
-    <br>
-    <form>
-        Input File: <input id="inputFile" type="file">
-    </form>
-    <br>
-    <form>
-        Password: <input id="password" type="password">
-    </form>
-    <form id="confirmPasswordForm">
+    <div>
+        <h1>Ecrypt/Decrypt file</h1>
+        <form>
+            Select Operation&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;
+            <select name="opertionType" id="opertionType" onchange="toggleConfirmPassword()">
+                <option value="encrypt">Encrypt</option>
+                <option value="decrypt">Decrypt</option>
+            </select>
+        </form>
         <br>
-        Confirm Password: <input id="confirmPassword" type="password">
-    </form>
-    <br>
-    <button id="startButton" onclick="start(this)">Encrypt</button>
+        <form>
+            Input File&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp; <input id="inputFile" type="file">
+        </form>
+        <br>
+        <form>
+            Password&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp; <input id="password" type="password">
+        </form>
+        <form id="confirmPasswordForm">
+            <br>
+            Confirm Password&nbsp;:&nbsp;&nbsp; <input id="confirmPassword" type="password">
+        </form>
+        <br>
+        <button id="startButton" onclick="start(this)">Encrypt</button>
+    </div>
 
     <script type="text/javascript">
 
