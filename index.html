@@ -7,7 +7,7 @@
 </head>
   
 <body>
-    <select name="opertionType" id="opertionType">
+    <select name="opertionType" id="opertionType" onchange="toggleConfirmPassword()">
         <option value="encrypt">Encrypt</option>
         <option value="decrypt">Decrypt</option>
     </select>
@@ -20,16 +20,29 @@
     <form>
         Password: <input id="password" type="password">
     </form>
-    <br>
-    <form>
+    <form id="confirmPasswordForm">
+        <br>
         Confirm Password: <input id="confirmPassword" type="password">
     </form>
     <br>
-    <button type="startButton" onclick="start(this)">Start</button>
+    <button id="startButton" onclick="start(this)">Encrypt</button>
 
     <script type="text/javascript">
 
+        function toggleConfirmPassword() {
+            dropdown = document.getElementById('opertionType')
+            type = dropdown.value
+            document.getElementById('startButton').innerText = dropdown.selectedOptions[0].innerText
+            if(type === 'encrypt') {
+                document.getElementById('confirmPasswordForm').hidden = false
+            } else {
+                document.getElementById('confirmPasswordForm').hidden = true
+            }
+        }
+
         async function start(self) {
+            type = document.getElementById('opertionType').value
+
             inputFile = document.getElementById('inputFile').value
             if(inputFile == null || inputFile === '') {
                 alert('Input file not selected.')
@@ -37,24 +50,25 @@
             }
 
             password = document.getElementById('password').value
+
             if(password == null || password === '') {
                 alert('Please provide password')
                 return
             }
-            confirmPassword = document.getElementById('confirmPassword').value
-            if(confirmPassword == null || confirmPassword === '') {
-                alert('Please provide confirm password')
-                return
-            }
 
-            if(password !== confirmPassword) {
-                alert('Password is not same as confirm password')
-                return
+            if(type === 'encrypt') {
+                confirmPassword = document.getElementById('confirmPassword').value
+                if(confirmPassword == null || confirmPassword === '') {
+                    alert('Please provide confirm password')
+                    return
+                }
+                if(password !== confirmPassword) {
+                    alert('Password is not same as confirm password')
+                    return
+                }
             }
-
+            
             document.getElementById('password').value = document.getElementById('confirmPassword').value = ''
-
-            type = document.getElementById('opertionType').value
 
             if(type === 'encrypt') {
                 await encryptOperation(password)
