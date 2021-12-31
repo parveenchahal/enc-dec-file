@@ -30,6 +30,7 @@
         </form>
         <br>
         <button id="startButton" onclick="start(this)">Encrypt</button>
+        <a id="triggerDownload"></a>
     </div>
 
     <script type="text/javascript">
@@ -82,6 +83,19 @@
             }
         }
 
+        function saveFile(fileName, data) {
+            if(!Array.isArray(data)) {
+                data = [data]
+            }
+            var a = document.getElementById('triggerDownload')
+            var blob = new Blob(data);
+            blob.stream()
+            var objectUrl = URL.createObjectURL(blob);
+            a.href = objectUrl
+            a.download = fileName
+            a.click()
+        }
+
         async function getSaveFileHandler(fileName) {
             const opts = {
                 suggestedName: fileName
@@ -103,11 +117,7 @@
                     alert("Something went wrong while encrypting.")
                     return
                 }
-                outputFileHandler = await getSaveFileHandler(inputFileBlob.name + '.enc')
-                writableOutputFileHandler = await outputFileHandler.createWritable()
-                writableOutputFileHandler.write(salt)
-                writableOutputFileHandler.write(encFileArrayBuffer)
-                writableOutputFileHandler.close()
+                saveFile(inputFileBlob.name + '.enc', [salt, encFileArrayBuffer])
             }
             fileReader.readAsArrayBuffer(inputFileBlob)
         }
@@ -130,21 +140,10 @@
                 if(inputFileBlob.name.toLowerCase().endsWith('.enc')) {
                     outputFileName = inputFileBlob.name.substring(0, inputFileBlob.name.length - 4)
                 }
-                outputFileHandler = await getSaveFileHandler(outputFileName)
-                writableOutputFileHandler = await outputFileHandler.createWritable()
-                writableOutputFileHandler.write(fileArrayBuffer)
-                writableOutputFileHandler.close()
+                saveFile(outputFileName, fileArrayBuffer)
             }
             fileReader.readAsArrayBuffer(inputFileBlob)
         }        
-
-        function u8ToBase64(u8) {
-            return btoa(String.fromCharCode.apply(null, u8));
-        }
-
-        function base64ToU8(str) {
-            return Uint8Array.from(Array.from(atob(str)));
-        }
 
         function strToU8(str) {
             return new TextEncoder().encode(str)
