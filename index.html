@@ -133,7 +133,6 @@
             }
             var a = document.getElementById('triggerDownload')
             var blob = new Blob(data);
-            blob.stream()
             var objectUrl = URL.createObjectURL(blob);
             a.href = objectUrl
             a.download = fileName
