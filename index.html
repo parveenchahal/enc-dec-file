@@ -109,21 +109,23 @@
             }
             fileReader.readAsArrayBuffer(inputFileBlob)
         }
-
-        async function encryptFile(arrayBuffer, salt, password) {
+        
+        async function getDerivedKey(password, salt) {
             password = strToU8(password)
             digest = await crypto.subtle.digest({name: 'SHA-512'}, password)
             baseKey = await crypto.subtle.importKey('raw', digest, {name: 'PBKDF2'}, false, ['deriveKey'])
             key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-512', salt: salt, iterations: 100000}, baseKey, {name: 'AES-CBC', length: 256}, false, ['encrypt', 'decrypt'])
+            return key
+        }
+
+        async function encryptFile(arrayBuffer, salt, password) {
+            key = getDerivedKey(password, salt)
             encArrayBuffer = await crypto.subtle.encrypt({name: 'AES-CBC', iv: salt}, key, arrayBuffer)
             return encArrayBuffer
         }
 
         async function decryptFile(encArrayBuffer, salt, password) {
-            password = strToU8(password)
-            digest = await crypto.subtle.digest({name: 'SHA-512'}, password)
-            baseKey = await crypto.subtle.importKey('raw', digest, {name: 'PBKDF2'}, false, ['deriveKey'])
-            key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-512', salt: salt, iterations: 100000}, baseKey, {name: 'AES-CBC', length: 256}, false, ['encrypt', 'decrypt'])
+            key = getDerivedKey(password, salt)
             arrayBuffer = await crypto.subtle.decrypt({name: 'AES-CBC', iv: salt}, key, encArrayBuffer)
             return arrayBuffer
         }
