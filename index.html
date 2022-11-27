@@ -119,13 +119,13 @@
         }
 
         async function encryptFile(arrayBuffer, salt, password) {
-            key = getDerivedKey(password, salt)
+            key = await getDerivedKey(password, salt)
             encArrayBuffer = await crypto.subtle.encrypt({name: 'AES-CBC', iv: salt}, key, arrayBuffer)
             return encArrayBuffer
         }
 
         async function decryptFile(encArrayBuffer, salt, password) {
-            key = getDerivedKey(password, salt)
+            key = await getDerivedKey(password, salt)
             arrayBuffer = await crypto.subtle.decrypt({name: 'AES-CBC', iv: salt}, key, encArrayBuffer)
             return arrayBuffer
         }
